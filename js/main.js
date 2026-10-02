@@ -19,12 +19,14 @@
     burger.addEventListener("click", function () {
       const open = nav.classList.toggle("is-open");
       burger.setAttribute("aria-expanded", open ? "true" : "false");
+      document.body.classList.toggle("nav-open", open);
     });
 
     nav.querySelectorAll("a").forEach(function (link) {
       link.addEventListener("click", function () {
         nav.classList.remove("is-open");
         burger.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("nav-open");
       });
     });
   }
