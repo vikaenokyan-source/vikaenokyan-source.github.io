@@ -2,6 +2,9 @@
   "use strict";
 
   var TELEGRAM_USER = "alekyananna";
+  // Адрес Cloudflare Worker, который пересылает заявки в бота.
+  // Если оставить пустым — форма откроет личный чат в Telegram с готовым текстом.
+  var FORM_ENDPOINT = "https://pvd-form.anna-alekyan.workers.dev";
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ─── Шапка: фон при скролле ─── */
@@ -233,38 +236,124 @@
     phoneField.classList.remove("is-invalid");
   });
 
-  /* ─── Заявка → Telegram с готовым текстом ─── */
+  /* ─── Согласие на обработку данных ─── */
+  var consent = document.getElementById("consent");
+  var submitBtn = form.querySelector('[type="submit"]');
+
+  function syncConsent() { submitBtn.disabled = !consent.checked; }
+  consent.addEventListener("change", syncConsent);
+  window.addEventListener("pageshow", syncConsent);
+  syncConsent();
+
+  /* ─── Модалка с политикой ─── */
+  var policyModal = document.getElementById("policy-modal");
+
+  document.querySelectorAll("[data-open-policy]").forEach(function (btn) {
+    btn.addEventListener("click", function () { policyModal.showModal(); });
+  });
+  policyModal.querySelector("[data-close-policy]").addEventListener("click", function () {
+    policyModal.close();
+  });
+  // Клик по затемнённому фону закрывает модалку
+  policyModal.addEventListener("click", function (e) {
+    if (e.target === policyModal) policyModal.close();
+  });
+
+  /* ─── Заявка → Telegram-бот (через Cloudflare Worker) ─── */
   var note = document.getElementById("form-note");
+  var submitLabel = submitBtn.querySelector(".btn__label");
+  if (FORM_ENDPOINT) {
+    submitLabel.textContent = "Отправить заявку";
+    note.textContent = "Перезвоним и назовём цену в течение 30 минут.";
+  }
+  var submitText = submitLabel.textContent;
+
+  function setNote(message, state) {
+    note.textContent = message;
+    note.classList.toggle("is-ok", state === "ok");
+    note.classList.toggle("is-error", state === "error");
+  }
+
+  function setSending(sending) {
+    form.setAttribute("aria-busy", sending ? "true" : "false");
+    submitLabel.textContent = sending ? "Отправляем…" : submitText;
+    submitBtn.disabled = sending || !consent.checked;
+  }
+
+  function formToFields(data) {
+    return {
+      phone: String(data.get("phone") || "").trim(),
+      city: String(data.get("city") || "").trim(),
+      volume: String(data.get("volume") || ""),
+      message: String(data.get("message") || "").trim(),
+      website: String(data.get("website") || "")
+    };
+  }
+
+  function telegramUrl(f) {
+    var text =
+      "Здравствуйте! Хочу узнать цену на вторичную гранулу ПВД с доставкой.\n" +
+      "Телефон: " + f.phone + "\n" +
+      "Город: " + (f.city || "—") + "\n" +
+      "Объём: " + (f.volume || "—") + "\n" +
+      "Комментарий: " + (f.message || "—");
+    return "https://t.me/" + TELEGRAM_USER + "?text=" + encodeURIComponent(text);
+  }
+
+  // Запасной путь, если бот недоступен: ссылка на Telegram с готовым текстом
+  function showFallback(f) {
+    setNote("Не получилось отправить заявку. ", "error");
+    var link = document.createElement("a");
+    link.href = telegramUrl(f);
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = "Отправить в Telegram →";
+    note.appendChild(link);
+  }
+
+  function sendToBot(f) {
+    var controller = window.AbortController ? new AbortController() : null;
+    var timer = controller && setTimeout(function () { controller.abort(); }, 12000);
+    return fetch(FORM_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(f),
+      signal: controller ? controller.signal : undefined
+    }).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok || !body.ok) throw new Error(body.error || "send");
+      });
+    }).finally(function () {
+      if (timer) clearTimeout(timer);
+    });
+  }
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-    var data = new FormData(form);
-    var phone = String(data.get("phone") || "").trim();
+    if (!consent.checked || form.getAttribute("aria-busy") === "true") return;
+    var f = formToFields(new FormData(form));
 
-    if (phone.replace(/\D/g, "").length < 11) {
+    if (f.phone.replace(/\D/g, "").length < 11) {
       phoneField.classList.add("is-invalid");
       phoneInput.focus();
       return;
     }
 
-    var text =
-      "Здравствуйте! Хочу узнать цену на вторичную гранулу ПВД с доставкой.\n" +
-      "Телефон: " + phone + "\n" +
-      "Город: " + (String(data.get("city") || "").trim() || "—") + "\n" +
-      "Объём: " + (data.get("volume") || "—") + "\n" +
-      "Комментарий: " + (String(data.get("message") || "").trim() || "—");
-
-    // Копируем текст на случай, если Telegram откроет чат без подстановки
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () {
-        note.textContent = "Заявка скопирована. Если поле в Telegram пустое — просто вставьте текст.";
-      }, function () {});
+    // Адрес воркера ещё не задан — работаем по-старому, через личный чат
+    if (!FORM_ENDPOINT) {
+      window.open(telegramUrl(f), "_blank", "noopener");
+      return;
     }
 
-    window.open(
-      "https://t.me/" + TELEGRAM_USER + "?text=" + encodeURIComponent(text),
-      "_blank",
-      "noopener"
-    );
+    setSending(true);
+    setNote("", null);
+    sendToBot(f).then(function () {
+      form.reset();
+      setNote("Спасибо! Заявка отправлена — перезвоним в течение 30 минут.", "ok");
+    }, function () {
+      showFallback(f);
+    }).then(function () {
+      setSending(false);
+    });
   });
 })();
