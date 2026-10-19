@@ -960,8 +960,125 @@ section { position: relative; }
 .segments input:checked + span { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
 .segments input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+.consent {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+.consent input { position: absolute; opacity: 0; pointer-events: none; }
+.consent__box {
+  flex: none;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: rgba(255, 236, 222, .03);
+  transition: border-color .2s, background .2s;
+}
+.consent__box::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 11px;
+  border: solid #1a0b05;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform .2s var(--ease);
+}
+.consent:hover .consent__box { border-color: rgba(255, 106, 61, .5); }
+.consent input:checked + .consent__box { border-color: var(--accent); background: var(--accent); }
+.consent input:checked + .consent__box::after { transform: rotate(45deg) scale(1); }
+.consent input:focus-visible + .consent__box { outline: 2px solid var(--accent); outline-offset: 2px; }
+.consent__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 106, 61, .45);
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color .2s, text-decoration-color .2s;
+}
+.consent__link:hover { color: var(--accent-hover); text-decoration-color: currentColor; }
+
 .form .btn { margin-top: 6px; --h: 56px; }
+.btn:disabled,
+.btn:disabled:hover {
+  background: var(--surface-2);
+  color: var(--dim);
+  border-color: var(--line-strong);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
 .form__note { color: var(--dim); font-size: 13px; text-align: center; }
+.form__note.is-ok { color: var(--text); }
+.form__note.is-error { color: var(--muted); }
+.form__note a { color: var(--accent); white-space: nowrap; }
+.form__note a:hover { color: var(--accent-hover); }
+.form__trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* ─── Модалка с политикой ─── */
+body:has(.modal[open]) { overflow: hidden; }
+.modal {
+  width: min(100% - 32px, 720px);
+  max-height: min(100% - 48px, 820px);
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8);
+}
+.modal[open] { display: flex; flex-direction: column; animation: modal-in .3s var(--ease); }
+.modal::backdrop { background: rgba(5, 4, 3, .72); backdrop-filter: blur(6px); }
+@keyframes modal-in { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+.modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 28px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.modal__title { font-size: clamp(22px, 2.4vw, 28px); letter-spacing: -0.025em; line-height: 1.15; }
+.modal__close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.modal__close svg { width: 18px; height: 18px; }
+.modal__close:hover { border-color: var(--accent); background: var(--accent-soft); }
+.modal__body {
+  overflow-y: auto;
+  padding: 8px 28px 32px;
+  color: var(--muted);
+  font-size: 15px;
+}
+.modal__body h3 { margin: 24px 0 10px; color: var(--text); font-size: 17px; }
+.modal__body p + p { margin-top: 10px; }
+.modal__body ul { display: grid; gap: 4px; }
+.modal__body li { position: relative; padding-left: 18px; }
+.modal__body li::before { content: "—"; position: absolute; left: 0; color: var(--accent); }
 
 /* ═════════ 12. ПОДВАЛ ═════════ */
 .footer { padding: 0 0 28px; }
@@ -1033,7 +1150,6 @@ section { position: relative; }
 }
 .floater:hover { transform: translateY(-3px); }
 .floater svg { width: 22px; height: 22px; }
-.floater--wa { width: 52px; background: #25d366; color: #fff; }
 .floater--call {
   padding: 0 22px 0 18px;
   background: var(--accent);
@@ -1173,6 +1289,9 @@ section { position: relative; }
   .delivery__rows > div { grid-template-columns: 1fr; gap: 8px; }
 
   .segments { grid-template-columns: 1fr; }
+
+  .modal__head { padding: 22px 20px 16px; }
+  .modal__body { padding: 4px 20px 24px; }
 
   .footer__top { grid-template-columns: 1fr; }
   .footer__bottom { margin-top: 36px; }

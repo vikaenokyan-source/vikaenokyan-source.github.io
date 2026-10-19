@@ -574,8 +574,18 @@
               <span>Комментарий</span>
               <textarea name="message" rows="3" placeholder="Цвет, фасовка, сроки…"></textarea>
             </label>
-            <button class="btn btn--primary btn--block" type="submit">
-              Отправить в Telegram
+            <label class="consent">
+              <input type="checkbox" name="consent" id="consent" required>
+              <span class="consent__box" aria-hidden="true"></span>
+              <span class="consent__text">Я согласен(на) с&nbsp;<button type="button" class="consent__link"
+                  data-open-policy>политикой обработки персональных данных</button></span>
+            </label>
+            <label class="form__trap" aria-hidden="true">
+              Не заполняйте это поле
+              <input type="text" name="website" tabindex="-1" autocomplete="off">
+            </label>
+            <button class="btn btn--primary btn--block" type="submit" disabled>
+              <span class="btn__label">Отправить в Telegram</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M21.5 4.5 2.8 11.7c-.8.3-.8 1.4 0 1.7l4.6 1.6 1.8 5.6c.2.7 1.1.9 1.6.4l2.6-2.5 4.8 3.5c.6.4 1.4.1 1.6-.6l3-15.4c.2-.9-.7-1.6-1.5-1.3zM9.6 14.6l8.6-7.8-6.9 9.3-.3 3.1z" />
@@ -614,12 +624,6 @@
                     fill="none" stroke="currentColor" stroke-width="1.6" />
                 </svg>
               </a>
-              <a href="https://wa.me/79033730373" target="_blank" rel="noopener" aria-label="WhatsApp">
-                <svg viewBox="0 0 24 24">
-                  <path fill="currentColor"
-                    d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z" />
-                </svg>
-              </a>
               <a href="https://t.me/alekyananna" target="_blank" rel="noopener" aria-label="Telegram">
                 <svg viewBox="0 0 24 24">
                   <path fill="currentColor"
@@ -642,7 +646,6 @@
             <p class="footer__label">Склад</p>
             <p>г.&nbsp;Волжский,<br>ул.&nbsp;Промышленная, д.&nbsp;10, склад №3</p>
             <p>Пн–Вс 8:00–22:00</p>
-            <a href="https://wa.me/79033730373" target="_blank" rel="noopener">WhatsApp +7 (903) 373-03-73</a>
           </div>
         </div>
 
@@ -654,15 +657,64 @@
     </div>
   </footer>
 
+  <!-- ═════════ ПОЛИТИКА ПЕРСОНАЛЬНЫХ ДАННЫХ ═════════ -->
+  <dialog class="modal" id="policy-modal" aria-labelledby="policy-title">
+    <div class="modal__head">
+      <h2 class="modal__title" id="policy-title">Политика обработки персональных данных</h2>
+      <button class="modal__close" type="button" data-close-policy aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <h3>1. Общие положения</h3>
+      <p>Настоящая политика определяет порядок обработки и&nbsp;защиты персональных данных посетителей сайта
+        «ПВДГранула» (далее — Сайт) в&nbsp;соответствии с&nbsp;Федеральным законом от&nbsp;27.07.2006 №&nbsp;152-ФЗ
+        «О&nbsp;персональных данных».</p>
+      <p>Оператор персональных данных: [ФИО / наименование организации], ИНН [ИНН], адрес: г.&nbsp;Волжский,
+        ул.&nbsp;Промышленная, д.&nbsp;10, склад №3. Телефон: +7&nbsp;(903)&nbsp;373-03-73.</p>
+
+      <h3>2. Какие данные мы обрабатываем</h3>
+      <ul>
+        <li>номер телефона;</li>
+        <li>город доставки;</li>
+        <li>сведения, которые вы указываете в&nbsp;комментарии к&nbsp;заявке.</li>
+      </ul>
+
+      <h3>3. Цели обработки</h3>
+      <ul>
+        <li>связь с&nbsp;вами по&nbsp;оставленной заявке;</li>
+        <li>расчёт стоимости товара и&nbsp;доставки;</li>
+        <li>заключение и&nbsp;исполнение договора поставки.</li>
+      </ul>
+
+      <h3>4. Порядок обработки</h3>
+      <p>После отправки формы данные по&nbsp;защищённому соединению передаются оператору в&nbsp;мессенджер
+        Telegram через сервис Cloudflare, который только пересылает заявку и&nbsp;не&nbsp;хранит её. Если
+        автоматическая отправка недоступна, вы можете отправить заявку сами из&nbsp;своего аккаунта Telegram.
+        Сайт не&nbsp;хранит введённые данные на&nbsp;своих серверах. Оператор не&nbsp;передаёт
+        персональные данные третьим лицам, за&nbsp;исключением случаев, предусмотренных законодательством РФ,
+        и&nbsp;перевозчиков — в&nbsp;объёме, необходимом для доставки заказа.</p>
+      <p>Оператор принимает необходимые правовые, организационные и&nbsp;технические меры для защиты персональных
+        данных от&nbsp;неправомерного доступа, изменения, распространения и&nbsp;уничтожения.</p>
+
+      <h3>5. Срок обработки</h3>
+      <p>Персональные данные обрабатываются до&nbsp;достижения целей обработки либо до&nbsp;отзыва согласия.</p>
+
+      <h3>6. Ваши права</h3>
+      <p>Вы вправе получить сведения об&nbsp;обработке ваших персональных данных, потребовать их&nbsp;уточнения
+        или удаления, а&nbsp;также отозвать согласие на&nbsp;обработку, направив обращение по&nbsp;телефону
+        +7&nbsp;(903)&nbsp;373-03-73 или в&nbsp;Telegram @alekyananna.</p>
+
+      <h3>7. Согласие</h3>
+      <p>Отмечая чекбокс в&nbsp;форме заявки, вы даёте согласие на&nbsp;обработку своих персональных данных
+        на&nbsp;условиях настоящей политики.</p>
+    </div>
+  </dialog>
+
   <!-- ═════════ 13. ПЛАВАЮЩИЕ КНОПКИ ═════════ -->
   <div class="floaters">
-    <a class="floater floater--wa" href="https://wa.me/79033730373" target="_blank" rel="noopener"
-      aria-label="Написать в WhatsApp">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="currentColor"
-          d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z" />
-      </svg>
-    </a>
     <a class="floater floater--call" href="tel:+79033730373">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
