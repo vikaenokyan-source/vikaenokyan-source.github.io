@@ -4,7 +4,7 @@
   var TELEGRAM_USER = "alekyananna";
   // Адрес Cloudflare Worker, который пересылает заявки в бота.
   // Если оставить пустым — форма откроет личный чат в Telegram с готовым текстом.
-  var FORM_ENDPOINT = "https://pvd-form.anna-alekyan.workers.dev";
+  var FORM_ENDPOINT = "https://pvd-form.pvdgranula.workers.dev";
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ─── Шапка: фон при скролле ─── */
